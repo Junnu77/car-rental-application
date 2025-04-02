@@ -1,6 +1,6 @@
 const expressAsyncHandler = require("express-async-handler");
 const Car = require("../models/carModel");
-const Rental = require("../models/rentalModel");
+const Rental = require("../models/RentalModel");
 const Review = require("../models/reviewModel");
 
 const addCar = expressAsyncHandler(async (req, res) => {
@@ -28,7 +28,7 @@ const addCar = expressAsyncHandler(async (req, res) => {
   res.status(201).json(car);
 });
 
-const updateCar = async (req, res) => {
+const updateCar = expressAsyncHandler(async (req, res) => {
   const updatedCar = await Car.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
   });
@@ -39,7 +39,7 @@ const updateCar = async (req, res) => {
   }
 
   res.status(200).json(updatedCar);
-};
+});
 
 const removeCar = expressAsyncHandler(async (req, res) => {
   await Car.findByIdAndDelete(req.params.id);
@@ -49,7 +49,7 @@ const removeCar = expressAsyncHandler(async (req, res) => {
   });
 });
 
-const getRentals = async (req, res) => {
+const getRentals = expressAsyncHandler(async (req, res) => {
   const rentals = await Rental.find();
 
   if (!rentals) {
@@ -58,9 +58,9 @@ const getRentals = async (req, res) => {
   }
 
   res.status(200).json(rentals);
-};
+});
 
-const getAllUserReviews = async (req, res) => {
+const getAllUserReviews = expressAsyncHandler(async (req, res) => {
   const reviews = await Review.find();
 
   if (!reviews) {
@@ -69,7 +69,7 @@ const getAllUserReviews = async (req, res) => {
   }
 
   res.status(200).json(reviews);
-};
+});
 
 module.exports = {
   addCar,

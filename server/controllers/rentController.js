@@ -1,14 +1,37 @@
 const expressAsyncHandler = require("express-async-handler");
 const Car = require("../models/carModel");
-const Rental = require("../models/rentalModel");
+const Rental = require("../models/RentalModel");
 
-const getUserRentals = async (req, res) => {
-  res.send("All Users Rentals!!");
+const calculateDaysBetweenDates = (startDate, endDate) => {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+
+  if (isNaN(start) || isNaN(end)) {
+      throw new Error("Invalid date format");
+  }
+
+  const timeDifference = end - start;
+  const daysDifference = timeDifference / (1000 * 3600 * 24);
+  return daysDifference;
 };
 
-const getUserRental = async (req, res) => {
-  res.send("Single Rental!!");
-};
+const getUserRentals = expressAsyncHandler(async (req, res) => {
+  const rentals = await Rental.find({user:req.user._id});
+  if(!rentals) {
+    res.status(404);
+    throw new Error("No Rental Found!");
+  }
+  res.status(200).json(rentals)
+});
+
+const getUserRental = expressAsyncHandler(async (req, res) => {
+  const rental = await Rental.findById(req.params.rid);
+  if(!rental) {
+    res.status(404);
+    throw new Error("No Rental Found!");
+  }
+  res.status(200).json(rental);
+});
 
 const addUserRental = expressAsyncHandler(async (req, res) => {
   const { pickupDate, dropDate } = req.body;
@@ -27,8 +50,13 @@ const addUserRental = expressAsyncHandler(async (req, res) => {
   }
 
   //  Fix This
-  let totalBill =
-    (dropDate.split("-")[0] - pickupDate.split("-")[0]) * carExist.rate;
+  let days = calculateDaysBetweenDates(pickupDate, dropDate);
+  let totalBill = Number(days * carExist.rate);
+
+  if (carExist.isBooked) {
+    res.status(400);
+    throw new Error("Car is already booked!");
+  }
 
   const newRental = {
     user: req.user._id,
@@ -59,7 +87,25 @@ const addUserRental = expressAsyncHandler(async (req, res) => {
 });
 
 const updateRental = async (req, res) => {
-  res.send("Rental Updated!!");
+  const {dropDate} = req.body
+  if(!dropDate) {
+    res.status(400);
+    throw new Error("Kindly provide drop-date");
+  }
+
+  const rental = await Rental.findById(req.params.rid);
+  console.log(rental)
+  const car = await Car.findById(rental.car)
+
+  const newBill = calculateDaysBetweenDates(rental.pickupDate, dropDate) * car.rate;
+
+  const updatedRental = await Rental.findByIdAndUpdate(req.params.rid, {dropDate:dropDate, totalBill:newBill}, {new : true})
+
+  if(!updatedRental) {
+    res.status(400);
+    throw new Error("Rental not updated!");
+  }
+  res.status(200).json(updatedRental)
 };
 
 module.exports = { getUserRentals, addUserRental, getUserRental, updateRental };

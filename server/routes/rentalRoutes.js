@@ -10,8 +10,8 @@ const protect = require("../middleware/authMiddleware");
 const router = express.Router();
 
 router.get("/", protect, getUserRentals);
-router.get("/:cid", protect, getUserRental);
+router.get("/:rid", protect, getUserRental);
 router.post("/:cid", protect, addUserRental);
-router.put("/:cid", protect, updateRental);
+router.put("/:rid", protect, updateRental);
 
 module.exports = router;
