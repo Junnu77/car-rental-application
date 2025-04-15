@@ -5,7 +5,8 @@ const User = require("../models/userModel");
 
 const registerUser = expressAsyncHandler(async (req, res) => {
   // Check all fields are coming in req.body
-  const { name, phone, email, password } = req.body;
+  try {
+    const { name, phone, email, password, license } = req.body;
 
   if (!name || !phone || !email || !password) {
     res.status(400);
@@ -30,6 +31,7 @@ const registerUser = expressAsyncHandler(async (req, res) => {
     email,
     phone,
     password: hashedPassword,
+    license:license || null
   });
 
   if (!user) {
@@ -42,7 +44,13 @@ const registerUser = expressAsyncHandler(async (req, res) => {
     name: user.name,
     email: user.email,
     token: generateToken(user._id),
-  });
+  })
+  } catch (error) {
+    res.status(400).json({
+      message: error.message,
+      stack: process.env.NODE_ENV === 'production' ? null : error.stack,
+    });
+  };
 });
 
 const loginUser = expressAsyncHandler(async (req, res) => {
@@ -61,6 +69,7 @@ const loginUser = expressAsyncHandler(async (req, res) => {
       id: user._id,
       name: user.name,
       email: user.email,
+      isAdmin: user.isAdmin,
       token: generateToken(user._id),
     });
   } else {

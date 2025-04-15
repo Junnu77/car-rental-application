@@ -25,6 +25,8 @@ const userSchema = new mongoose.Schema(
     },
     license: {
       type: String,
+      unique:false,
+      default:undefined
     },
     isAdmin: {
       type: Boolean,

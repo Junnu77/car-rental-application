@@ -3,14 +3,14 @@ const {
   addCar,
   updateCar,
   removeCar,
-  getRentals,
+  getAllRentals,
   getAllUserReviews,
 } = require("../controllers/adminController");
 const adminProtect = require("../middleware/adminMiddleware");
 
 const router = express.Router();
 
-router.get("/rentals", getRentals);
+router.get("/rentals", getAllRentals);
 router.get("/reviews", getAllUserReviews);
 router.post("/car", adminProtect, addCar);
 router.put("/car/:id", updateCar);
