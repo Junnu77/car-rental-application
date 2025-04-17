@@ -1,6 +1,6 @@
 const expressAsyncHandler = require("express-async-handler");
 const Car = require("../models/carModel");
-const Rental = require("../models/RentalModel");
+const Rental = require("../models/rentalModel");
 
 const calculateDaysBetweenDates = (startDate, endDate) => {
   const start = new Date(startDate);
